@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
   if (event.type === "checkout.session.completed") {
     const sessionFromEvent = event.data.object;
     
+    
     const fullSession = await stripe.checkout.sessions.retrieve(
       sessionFromEvent.id,
       {
