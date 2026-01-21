@@ -5,7 +5,7 @@ import { CartItem } from "@/components/cart/CartContext";
 export async function fulfillOrderWithPrintful(session: Stripe.Checkout.Session) {
   const customerEmail = session.customer_details?.email;
   const customerName = session.customer_details?.name;
-  const shippingDetails = session.shipping_details;
+  const shippingDetails = (session as any).shipping_details;
 
   if (!customerEmail || !customerName || !shippingDetails) {
     console.error("Missing customer or shipping details");
@@ -39,8 +39,8 @@ export async function fulfillOrderWithPrintful(session: Stripe.Checkout.Session)
     throw new Error("Missing shipping address");
   }
 
-  const shipping = {
-    name: customerName,
+  const shippingInfo = {
+    name: shippingDetails.name || customerName,
     address1: address.line1 || "",
     city: address.city || "",
     stateCode: address.state || "",
@@ -49,7 +49,7 @@ export async function fulfillOrderWithPrintful(session: Stripe.Checkout.Session)
     email: customerEmail,
   };
 
-  const result = await createPrintfulOrder(printfulItems, shipping);
+  const result = await createPrintfulOrder(printfulItems, shippingInfo);
   
   console.log("Printful order created:", result);
 }

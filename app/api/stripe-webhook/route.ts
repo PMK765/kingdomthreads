@@ -21,10 +21,17 @@ export async function POST(req: NextRequest) {
   );
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-    await fulfillOrderWithPrintful(session);
+    const sessionFromEvent = event.data.object;
+    
+    const fullSession = await stripe.checkout.sessions.retrieve(
+      sessionFromEvent.id,
+      {
+        expand: ["line_items", "shipping_cost", "customer"],
+      }
+    );
+    
+    await fulfillOrderWithPrintful(fullSession);
   }
 
   return NextResponse.json({ received: true });
 }
-

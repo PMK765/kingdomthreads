@@ -7,17 +7,31 @@ const envSchema = z.object({
   PRINTFUL_API_TOKEN: z.string().min(1)
 });
 
-const parsed = envSchema.safeParse(process.env);
+const isBuildTime = process.env.NEXT_PHASE === "phase-production-build" || process.env.NODE_ENV === undefined;
 
-if (!parsed.success) {
-  console.error(parsed.error.flatten().fieldErrors);
-  throw new Error("Invalid environment variables");
+let parsedEnv: z.infer<typeof envSchema>;
+
+if (isBuildTime) {
+  parsedEnv = {
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "build-time-placeholder",
+    STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || "build-time-placeholder",
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "build-time-placeholder",
+    PRINTFUL_API_TOKEN: process.env.PRINTFUL_API_TOKEN || "build-time-placeholder",
+  };
+} else {
+  const parsed = envSchema.safeParse(process.env);
+
+  if (!parsed.success) {
+    console.error(parsed.error.flatten().fieldErrors);
+    throw new Error("Invalid environment variables");
+  }
+
+  parsedEnv = parsed.data;
 }
 
 export const env = {
-  stripeSecretKey: parsed.data.STRIPE_SECRET_KEY,
-  stripePublishableKey: parsed.data.STRIPE_PUBLISHABLE_KEY,
-  stripeWebhookSecret: parsed.data.STRIPE_WEBHOOK_SECRET,
-  printfulApiToken: parsed.data.PRINTFUL_API_TOKEN
+  stripeSecretKey: parsedEnv.STRIPE_SECRET_KEY,
+  stripePublishableKey: parsedEnv.STRIPE_PUBLISHABLE_KEY,
+  stripeWebhookSecret: parsedEnv.STRIPE_WEBHOOK_SECRET,
+  printfulApiToken: parsedEnv.PRINTFUL_API_TOKEN
 };
-
