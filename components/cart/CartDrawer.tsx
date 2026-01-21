@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useCart } from "./CartContext";
+import { getPrintfulProducts } from "@/lib/printful";
+import { convertPrintfulProductToProduct, getProductById } from "@/lib/products";
 
 export function CartDrawer() {
   const { items, removeItem, clearCart } = useCart();

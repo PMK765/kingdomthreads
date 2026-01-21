@@ -11,50 +11,60 @@ export interface Product {
   printfulVariants?: Record<string, string>;
 }
 
-export const products: Product[] = [
-  {
-    id: "tank-kingdom-001",
-    slug: "mens-kingdom-tank",
-    name: "Men's Kingdom Tank",
-    description: "Soft, athletic cut with a bold proclamation.",
-    priceCents: 2850,
-    imageUrl: "/tank-placeholder.png",
-    sizes: ["XS", "S", "M", "L", "XL", "2XL"],
-    printfulVariants: {
-      "XS": "696c1f053d4782",
-      "S": "696c1f053d4832",
-      "M": "696c1f053d48c6",
-      "L": "696c1f053d4932",
-      "XL": "696c1f053d49a1",
-      "2XL": "696c1f053d4a06",
-    },
-  },
-  {
-    id: "2",
-    slug: "empty-tomb-art-print",
-    name: "Empty Tomb Art Print",
-    description: "Museum-quality art print celebrating the resurrection. The tomb is empty; He is risen. A daily reminder of our victory in Christ.",
-    priceCents: 2999,
-    imageUrl: "/products/print.jpg",
-    printfulProductId: "printful-prod-2",
-    printfulVariantId: "printful-var-2",
-  },
-  {
-    id: "3",
-    slug: "holy-holy-holy-embroidered-hat",
-    name: "Holy, Holy, Holy Embroidered Hat",
-    description: "Elegantly embroidered cap with the threefold declaration of God's holiness. Wear your faith with humility and reverence.",
-    priceCents: 2499,
-    imageUrl: "/products/hat.jpg",
-    printfulProductId: "printful-prod-3",
-    printfulVariantId: "printful-var-3",
-  },
-];
-
-export function getProductBySlug(slug: string): Product | undefined {
+export function getProductBySlug(slug: string, products: Product[]): Product | undefined {
   return products.find((p) => p.slug === slug);
 }
 
-export function getProductById(id: string): Product | undefined {
+export function getProductById(id: string, products: Product[]): Product | undefined {
   return products.find((p) => p.id === id);
+}
+
+export function convertPrintfulProductToProduct(printfulProduct: any): Product {
+  const syncProduct = printfulProduct.sync_product || printfulProduct;
+  const syncVariants = printfulProduct.sync_variants || [];
+  
+  const sizes: string[] = [];
+  const printfulVariants: Record<string, string> = {};
+  
+  syncVariants.forEach((variant: any) => {
+    const sizeName = variant.name?.split(" - ").pop()?.trim() || variant.size || "";
+    if (sizeName && variant.id) {
+      sizes.push(sizeName);
+      printfulVariants[sizeName] = variant.id.toString();
+    }
+  });
+  
+  let imageUrl = "";
+  if (syncVariants.length > 0) {
+    const firstVariant = syncVariants[0];
+    if (firstVariant.files && Array.isArray(firstVariant.files)) {
+      const previewFile = firstVariant.files.find((f: any) => f.type === "preview");
+      imageUrl = previewFile?.preview_url || previewFile?.thumbnail_url || "";
+    }
+  }
+  
+  if (!imageUrl && syncProduct.thumbnail_url) {
+    imageUrl = syncProduct.thumbnail_url;
+  }
+  
+  const firstVariant = syncVariants[0];
+  let retailPrice = 0;
+  if (firstVariant?.retail_price) {
+    const priceStr = typeof firstVariant.retail_price === 'string' 
+      ? firstVariant.retail_price 
+      : firstVariant.retail_price.toString();
+    retailPrice = Math.round(parseFloat(priceStr) * 100);
+  }
+  
+  return {
+    id: syncProduct.id?.toString() || "unknown",
+    slug: (syncProduct.name || "product").toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    name: syncProduct.name || "Product",
+    description: syncProduct.name || "Product",
+    priceCents: retailPrice,
+    imageUrl: imageUrl || "https://via.placeholder.com/400x400/1a1a1a/d4af37?text=Product",
+    printfulProductId: syncProduct.id?.toString(),
+    sizes: sizes.length > 0 ? sizes : undefined,
+    printfulVariants: sizes.length > 0 ? printfulVariants : undefined,
+  };
 }

@@ -55,3 +55,36 @@ export async function createPrintfulOrder(
   return await response.json();
 }
 
+export async function getPrintfulProducts() {
+  const response = await fetch(`${PRINTFUL_BASE_URL}/store/products`, {
+    headers: {
+      "Authorization": `Bearer ${env.printfulApiToken}`,
+    },
+    next: { revalidate: 3600 },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Printful API error: ${response.status} ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.result;
+}
+
+export async function getPrintfulProduct(productId: string) {
+  const response = await fetch(`${PRINTFUL_BASE_URL}/store/products/${productId}`, {
+    headers: {
+      "Authorization": `Bearer ${env.printfulApiToken}`,
+    },
+    next: { revalidate: 3600 },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Printful API error: ${response.status} ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.result;
+}

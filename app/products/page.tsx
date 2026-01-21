@@ -1,7 +1,17 @@
 import Link from "next/link";
-import { products } from "@/lib/products";
+import { getPrintfulProducts, getPrintfulProduct } from "@/lib/printful";
+import { convertPrintfulProductToProduct } from "@/lib/products";
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const printfulProductsList = await getPrintfulProducts();
+  
+  const productsPromises = printfulProductsList.map(async (product: any) => {
+    const fullProduct = await getPrintfulProduct(product.id);
+    return convertPrintfulProductToProduct(fullProduct);
+  });
+  
+  const products = await Promise.all(productsPromises);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-4xl font-bold mb-8 text-amber-100">Our Collection</h1>
@@ -14,8 +24,16 @@ export default function ProductsPage() {
             className="group"
           >
             <div className="bg-neutral-900 rounded-lg overflow-hidden border border-neutral-800 hover:border-amber-700 transition-all">
-              <div className="aspect-square bg-neutral-800 flex items-center justify-center">
-                <span className="text-neutral-600 text-sm">Product Image</span>
+              <div className="aspect-square bg-neutral-800 flex items-center justify-center overflow-hidden">
+                {product.imageUrl ? (
+                  <img 
+                    src={product.imageUrl} 
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-neutral-600 text-sm">Product Image</span>
+                )}
               </div>
               
               <div className="p-6">
@@ -41,4 +59,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
