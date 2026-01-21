@@ -55,12 +55,15 @@ export async function createPrintfulOrder(
   return await response.json();
 }
 
+const isDevelopment = process.env.NODE_ENV === "development";
+const cacheTime = isDevelopment ? 60 : 3600;
+
 export async function getPrintfulProducts() {
   const response = await fetch(`${PRINTFUL_BASE_URL}/store/products`, {
     headers: {
       "Authorization": `Bearer ${env.printfulApiToken}`,
     },
-    next: { revalidate: 3600 },
+    next: { revalidate: cacheTime },
   });
 
   if (!response.ok) {
@@ -77,7 +80,7 @@ export async function getPrintfulProduct(productId: string) {
     headers: {
       "Authorization": `Bearer ${env.printfulApiToken}`,
     },
-    next: { revalidate: 3600 },
+    next: { revalidate: cacheTime },
   });
 
   if (!response.ok) {
