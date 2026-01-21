@@ -5,7 +5,7 @@ export default function HomePage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <section className="py-20 md:py-32 text-center">
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-amber-100">
-          Kingdom Threads
+          Kingdom of Heaven Threads
         </h1>
         <p className="text-xl md:text-2xl text-neutral-300 mb-4 max-w-3xl mx-auto">
           Reverent, Biblical apparel and art for those who bear witness to Christ.

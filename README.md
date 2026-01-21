@@ -1,4 +1,4 @@
-# Kingdom Threads
+# Kingdom of Heaven Threads
 
 A reverent, Biblical apparel and art storefront built with modern web technologies.
 
@@ -39,7 +39,7 @@ cp .env.local.example .env.local
 STRIPE_SECRET_KEY=sk_test_your_actual_key
 STRIPE_PUBLISHABLE_KEY=pk_test_your_actual_key
 STRIPE_WEBHOOK_SECRET=whsec_your_actual_secret
-PRINTFUL_API_TOKEN=your_actual_printful_token
+PRINTFUL_API_TOKEN=your_printful_api_token
 ```
 
 ### Running the Development Server
@@ -85,12 +85,11 @@ stripe listen --forward-to localhost:3000/api/stripe-webhook
 
 ## Printful Integration
 
-The Printful integration is configured in `lib/printful.ts`. To connect your products:
+The Printful integration is configured in `lib/printful.ts`. Products are automatically fetched from your Printful store:
 
-1. Create products in your Printful account
-2. Note the product IDs and variant IDs
-3. Update the products array in `lib/products.ts` with your actual Printful IDs
-4. The `fulfillOrderWithPrintful` function in `lib/fulfillment.ts` currently logs orders; enhance it to call `createPrintfulOrder` for automatic fulfillment
+1. Create and publish products in your Printful dashboard
+2. Products will appear automatically in your storefront
+3. When orders are placed, they're automatically submitted to Printful for fulfillment
 
 ## Project Structure
 
