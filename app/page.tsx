@@ -1,6 +1,16 @@
 import Link from "next/link";
+import { getPrintfulProducts, getPrintfulProduct } from "@/lib/printful";
+import { convertPrintfulProductToProduct } from "@/lib/products";
+import { ProductCarousel } from "@/components/ProductCarousel";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const printfulProducts = await getPrintfulProducts();
+  const productsPromises = printfulProducts.map(async (product: any) => {
+    const fullProduct = await getPrintfulProduct(product.id);
+    return convertPrintfulProductToProduct(fullProduct);
+  });
+  const products = await Promise.all(productsPromises);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <section className="py-20 md:py-32 text-center">
@@ -21,7 +31,9 @@ export default function HomePage() {
         </Link>
       </section>
 
-      <section className="py-16 border-t border-neutral-800">
+      <ProductCarousel products={products} />
+
+      <section className="py-16 border-t border-neutral-800 mt-16">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-semibold mb-6 text-neutral-200">
             Wear Your Faith with Reverence
