@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
 import { getPrintfulProducts, getPrintfulProduct } from "@/lib/printful";
-import { convertPrintfulProductToProduct, getProductBySlug } from "@/lib/products";
+import { convertPrintfulProductToProduct, getProductBySlug, Product } from "@/lib/products";
 import { AddToCartSection } from "./AddToCartSection";
 
 export async function generateStaticParams() {
   const printfulProducts = await getPrintfulProducts();
   const products = printfulProducts.map(convertPrintfulProductToProduct);
   
-  return products.map((product) => ({
+  return products.map((product: Product) => ({
     slug: product.slug,
   }));
 }
